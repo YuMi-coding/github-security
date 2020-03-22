@@ -39,6 +39,7 @@ def _download_from_address(_address: str):
     project_name = _address.split("/")[-1][:-1] + ".zip"
     command = "wget -q -O "+project_name+ " "+_address + "/zipball/master"
     os.system(command)
+    print("Download ", project_name, " complete!")
     return 1
 
 def download_repos(_address_list, _download_path):
