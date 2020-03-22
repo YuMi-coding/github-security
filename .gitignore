@@ -134,3 +134,4 @@ dmypy.json
 
 # Untrack all files that downloaded from network
 *zip
+*key
