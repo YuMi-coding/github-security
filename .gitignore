@@ -128,6 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Untrack all json files ang json zipped
+# Untrack all json files and json zipped
 *json.gz
 *json
+
+# Untrack all files that downloaded from network
+*zip

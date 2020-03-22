@@ -15,7 +15,7 @@ def download():
         os.mkdir(_download_path, 0o777)
     os.chdir(_download_path)
 
-    _download_file = input("The time of archives to download:(YYYY-MM-{DD}-{HH})")
+    _download_file = input("The time of archives to download(YYYY-MM-{DD}-{HH}): ")
     command = "wget -q https://data.gharchive.org/" + _download_file + ".json.gz"
     os.system(command)
     print("Download complete!")
