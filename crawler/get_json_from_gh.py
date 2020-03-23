@@ -38,4 +38,5 @@ def unzip(_download_path):
 
 if __name__ == "__main__":
     download_path = download()
+
     unzip(download_path)

@@ -57,17 +57,20 @@ class VirusTotal():
 
         for filename in filenames:
             files = {"file": open(filename, 'rb')}
-            res = requests.post(url, data=attr, files=files)
+            try:
+                res = requests.post(url, data=attr, files=files)
 
-            if res.status_code == self.HTTP_OK:
-                resmap = json.loads(res.text)
-                if not self.is_verboselog:
-                    self.logger.info("sent: %s, HTTP: %d, response_code: %d, scan_id: %s",
-                                     os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_id"])
+                if res.status_code == self.HTTP_OK:
+                    resmap = json.loads(res.text)
+                    if not self.is_verboselog:
+                        self.logger.info("sent: %s, HTTP: %d, response_code: %d, scan_id: %s",
+                                        os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_id"])
+                    else:
+                        self.logger.info("sent: %s, HTTP: %d, content: %s", os.path.basename(filename), res.status_code, res.text)
                 else:
-                    self.logger.info("sent: %s, HTTP: %d, content: %s", os.path.basename(filename), res.status_code, res.text)
-            else:
-                self.logger.warning("sent: %s, HTTP: %d", os.path.basename(filename), res.status_code)
+                    self.logger.warning("sent: %s, HTTP: %d", os.path.basename(filename), res.status_code)
+            except Exception as e:
+                print(e)
 
     def retrieve_files_reports(self, filenames):
         """
@@ -78,12 +81,15 @@ class VirusTotal():
             res = self.retrieve_report(sha256sum(filename))
 
             if res.status_code == self.HTTP_OK:
-                resmap = json.loads(res.text)
-                if not self.is_verboselog:
-                    self.logger.info("retrieve report: %s, HTTP: %d, response_code: %d, scan_date: %s, positives/total: %d/%d",
+                try:
+                    resmap = json.loads(res.text)
+                    if not self.is_verboselog:
+                        self.logger.info("retrieve report: %s, HTTP: %d, response_code: %d, scan_date: %s, positives/total: %d/%d",
                                      os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_date"], resmap["positives"], resmap["total"])
-                else:
-                    self.logger.info("retrieve report: %s, HTTP: %d, content: %s", os.path.basename(filename), res.status_code, res.text)
+                    else:
+                        self.logger.info("retrieve report: %s, HTTP: %d, content: %s", os.path.basename(filename), res.status_code, res.text)
+                except Exception as e:
+                    print(e)
             else:
                 self.logger.warning("retrieve report: %s, HTTP: %d", os.path.basename(filename), res.status_code)
 

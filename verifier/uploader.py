@@ -59,11 +59,17 @@ if __name__ == "__main__":
     api_comments = {True: 'Public', False: 'Private'}
     vt.logger.info("API KEY loaded. %s API used.", api_comments[vt.is_public_api])
 
+    start = 0
+    end = 400
+
     if args.send:
-        vt.send_files(list_all_files(args.send))
+        file_list = list(list_all_files(args.send))
+        vt.send_files(file_list)
 
     if args.retrieve:
-        vt.retrieve_files_reports(list_all_files(args.retrieve))
+        file_list = list(list_all_files(args.retrieve))
+        vt.retrieve_files_reports(file_list)
 
     if args.retrievefrommeta:
-        vt.retrieve_from_meta(args.retrievefrommeta)
+        file_list = list(list_all_files(args.retrievefrommeta))
+        vt.retrieve_from_meta(file_list)

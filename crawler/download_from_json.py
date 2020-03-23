@@ -57,4 +57,7 @@ def download_repos(_address_list, _download_path):
 if __name__ == "__main__":
     download_path = "./download_res"
     address = parse_json(download_path)
+    with open("address_list.txt", "a+") as f:
+        for line in address:
+            f.write(line + '\n')
     download_repos(address, download_path)
