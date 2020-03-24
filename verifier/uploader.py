@@ -4,7 +4,7 @@ import sys
 import argparse
 import logging
 
-from virus_total import VirusTotal
+from .virus_total import VirusTotal
 
 
 def list_all_files(path):
@@ -22,8 +22,10 @@ def list_all_files(path):
         return filter(os.path.isfile, map(lambda x: '/'.join([os.path.abspath(path), x]), os.listdir(path)))
 
 def read_apikey():
-    if os.path.isfile("api.key"):
-        fd = open("api.key", "r")
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    api_key_path = os.path.join(current_path, "api.key")
+    if os.path.isfile(api_key_path):
+        fd = open(api_key_path, "r")
         lines = fd.readlines()
         _api_key = lines[0]
     else:

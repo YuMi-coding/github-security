@@ -19,7 +19,7 @@ def download():
     command = "wget -q https://data.gharchive.org/" + _download_file + ".json.gz"
     os.system(command)
     print("Download complete!")
-    return _download_path
+    return _download_path, _download_file
 
 def unzip(_download_path):
     _filenames = [f for f in os.listdir(_download_path) \
@@ -37,6 +37,6 @@ def unzip(_download_path):
 
 
 if __name__ == "__main__":
-    download_path = download()
+    download_path, _ = download()
 
     unzip(download_path)

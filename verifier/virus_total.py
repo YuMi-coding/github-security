@@ -27,13 +27,13 @@ def sha256sum(filename):
         return m.hexdigest()
 
 class VirusTotal():
-    def __init__(self, api_key):
+    def __init__(self, api_key="", is_public_api=True):
         self.apikey = api_key
         self.URL_BASE = "https://www.virustotal.com/vtapi/v2/"
         self.HTTP_OK = 200
 
         # whether the API_KEY is a public API. limited to 4 per min if so.
-        self.is_public_api = True
+        self.is_public_api = is_public_api
         # whether a retrieval request is sent recently
         self.has_sent_retrieve_req = False
         # if needed (public API), sleep this amount of time between requests
@@ -64,7 +64,7 @@ class VirusTotal():
                     resmap = json.loads(res.text)
                     if not self.is_verboselog:
                         self.logger.info("sent: %s, HTTP: %d, response_code: %d, scan_id: %s",
-                                        os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_id"])
+                                         os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_id"])
                     else:
                         self.logger.info("sent: %s, HTTP: %d, content: %s", os.path.basename(filename), res.status_code, res.text)
                 else:
@@ -77,22 +77,23 @@ class VirusTotal():
         Retrieve Report for file
         @param filename: target file
         """
+        resmap = {}
         for filename in filenames:
             res = self.retrieve_report(sha256sum(filename))
 
             if res.status_code == self.HTTP_OK:
                 try:
                     resmap = json.loads(res.text)
-                    if not self.is_verboselog:
+                    if not self.is_verboselog and "scan_date" in resmap:
                         self.logger.info("retrieve report: %s, HTTP: %d, response_code: %d, scan_date: %s, positives/total: %d/%d",
-                                     os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_date"], resmap["positives"], resmap["total"])
+                                         os.path.basename(filename), res.status_code, resmap["response_code"], resmap["scan_date"], resmap["positives"], resmap["total"])
                     else:
                         self.logger.info("retrieve report: %s, HTTP: %d, content: %s", os.path.basename(filename), res.status_code, res.text)
                 except Exception as e:
                     print(e)
             else:
                 self.logger.warning("retrieve report: %s, HTTP: %d", os.path.basename(filename), res.status_code)
-
+        return resmap, res
     def retrieve_from_meta(self, filename):
         """
         Retrieve Report for checksums in the metafile

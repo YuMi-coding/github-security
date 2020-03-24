@@ -7,7 +7,7 @@ from get_json_from_gh import download, unzip
 from download_from_json import parse_json, download_repos, _download_from_address
 
 if __name__ == "__main__":
-    download_path = download()
+    download_path, _ = download()
     unzip(download_path)
     address = parse_json(download_path)
     with open("address_list.txt", "a+") as f:
