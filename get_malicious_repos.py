@@ -12,10 +12,10 @@ from verifier.uploader import read_apikey, list_all_files
 from verifier.virus_total import VirusTotal
 
 HEADER_LINE = ["Repo address", "Repo name", "Scan date", "Engine report", "Class"]
-ANALYZE_TIME = 30
+ANALYZE_TIME = 300
 RETRIES = 5
 COMPLETE_RESPONSE_CODE = 1
-PROCESSES = 2
+PROCESSES = 300
 
 def process_address(_address: str):
     _vt = vt
@@ -26,12 +26,19 @@ def process_address(_address: str):
     os.system(command)
 
     # send file
-    _vt.send_files([project_name])
+    try:
+        _vt.send_files([project_name])
+    except Exception as e:
+        print(e)
     res_code = 0
     retry = 0
     while res_code != COMPLETE_RESPONSE_CODE and retry < RETRIES:
         time.sleep(ANALYZE_TIME)
-        resmap, res = _vt.retrieve_files_reports([project_name])
+        try:
+            resmap, res = _vt.retrieve_files_reports([project_name])
+        except Exception as e:
+            print(e)
+            return 0
         res_code = res.status_code
         if "scan_date" in resmap and 'positives' in resmap and 'total' in resmap:
             continue_flag = False
