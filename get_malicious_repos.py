@@ -12,12 +12,14 @@ from verifier.uploader import read_apikey, list_all_files
 from verifier.virus_total import VirusTotal
 
 HEADER_LINE = ["Repo address", "Repo name", "Scan date", "Engine report", "Class"]
-ANALYZE_TIME = 60
+ANALYZE_TIME = 30
 RETRIES = 5
 COMPLETE_RESPONSE_CODE = 1
+PROCESSES = 2
+
 def process_address(_address: str):
     _vt = vt
-    fd_lock = lock
+    # fd_lock = lock
 
     project_name = _address.split("/")[-1] + ".zip"
     command = "wget -q -O "+project_name+ " "+_address + "/zipball/master"
@@ -31,15 +33,15 @@ def process_address(_address: str):
         time.sleep(ANALYZE_TIME)
         resmap, res = _vt.retrieve_files_reports([project_name])
         res_code = res.status_code
-        # if "scan_date" in resmap and 'positives' in resmap and 'total' in resmap:
-        #     continue_flag = False
-        #     if continue_flag:
-        #         continue
-        #     else:
-        #         break
+        if "scan_date" in resmap and 'positives' in resmap and 'total' in resmap:
+            continue_flag = False
+            if continue_flag:
+                continue
+            else:
+                break
         retry += 1
 
-    if len(resmap) > 0:
+    if res_code == 200:
         _class = "Normal"
         try:
             pos = resmap["positives"]
@@ -57,12 +59,14 @@ def process_address(_address: str):
                         str(pos) + "/" + str(tot),
                         _class]
 
-            fd_lock.acquire()
+            lock.acquire()
+            # print("lock acquired")
             _fd = open(csv_filename, "a+")
             _csv_writer = csv.writer(_fd)
             _csv_writer.writerow(res_line)
             _fd.close()
-            fd_lock.release()
+            lock.release()
+            # print("lock released")
         except Exception as e:
             print(e)
 
@@ -110,9 +114,9 @@ if __name__ == "__main__":
 
     manager = mp.Manager()
     lock = mp.Lock()
-    lock.release()
+    # lock.release()
     pool = mp.Pool(initializer=init,
                    initargs=(lock, vt, csv_filename),
-                   processes=mp.cpu_count()-2)
+                   processes=PROCESSES)
 
     result = pool.map(process_address, address)
