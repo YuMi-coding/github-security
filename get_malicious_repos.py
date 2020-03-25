@@ -14,7 +14,7 @@ from verifier.virus_total import VirusTotal
 HEADER_LINE = ["Repo address", "Repo name", "Scan date", "Engine report", "Class"]
 ANALYZE_TIME = 60
 RETRIES = 5
-
+COMPLETE_RESPONSE_CODE = 1
 def process_address(_address: str):
     _vt = vt
     fd_lock = lock
@@ -27,36 +27,44 @@ def process_address(_address: str):
     _vt.send_files([project_name])
     res_code = 0
     retry = 0
-    while res_code != 200 and retry < RETRIES:
+    while res_code != COMPLETE_RESPONSE_CODE and retry < RETRIES:
         time.sleep(ANALYZE_TIME)
         resmap, res = _vt.retrieve_files_reports([project_name])
         res_code = res.status_code
-        if "scan_date" in resmap:
-            break
+        # if "scan_date" in resmap and 'positives' in resmap and 'total' in resmap:
+        #     continue_flag = False
+        #     if continue_flag:
+        #         continue
+        #     else:
+        #         break
         retry += 1
 
     if len(resmap) > 0:
-        pos = resmap["positives"]
-        tot = resmap["total"]
-        dat = resmap["scan_date"]
+        _class = "Normal"
+        try:
+            pos = resmap["positives"]
+            tot = resmap["total"]
+            dat = resmap["scan_date"]
 
-        if int(pos)/int(tot) > 0.25:
-            _class = "Malicious"
-        else:
-            _class = "Normal"
+            if int(pos)/int(tot) > 0.25:
+                _class = "Malicious"
+            else:
+                _class = "Normal"
 
-        res_line = [_address,
-                    project_name,
-                    str(dat),
-                    str(pos) + "/" + str(tot),
-                    _class]
+            res_line = [_address,
+                        project_name,
+                        str(dat),
+                        str(pos) + "/" + str(tot),
+                        _class]
 
-        fd_lock.acquire()
-        _fd = open(csv_filename, "a+")
-        _csv_writer = csv.writer(_fd)
-        _csv_writer.writerow(res_line)
-        _fd.close()
-        fd_lock.release()
+            fd_lock.acquire()
+            _fd = open(csv_filename, "a+")
+            _csv_writer = csv.writer(_fd)
+            _csv_writer.writerow(res_line)
+            _fd.close()
+            fd_lock.release()
+        except Exception as e:
+            print(e)
 
         if _class == "Normal":
             os.system("rm " + project_name)
@@ -88,9 +96,10 @@ if __name__ == "__main__":
     csv_writer = csv.writer(csv_fd)
     csv_writer.writerow(HEADER_LINE)
     csv_fd.close()
+    csv_filename = "../" + csv_filename
 
     # dir preprocess
-    _repo_path = "./repos"
+    _repo_path = "./repos_mal"
     if not os.path.isdir(_repo_path):
         os.mkdir(_repo_path, 0o777)
     os.chdir(_repo_path)
@@ -101,6 +110,7 @@ if __name__ == "__main__":
 
     manager = mp.Manager()
     lock = mp.Lock()
+    lock.release()
     pool = mp.Pool(initializer=init,
                    initargs=(lock, vt, csv_filename),
                    processes=mp.cpu_count()-2)
