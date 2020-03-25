@@ -12,7 +12,7 @@ from verifier.uploader import read_apikey, list_all_files
 from verifier.virus_total import VirusTotal
 
 HEADER_LINE = ["Repo address", "Repo name", "Scan date", "Engine report", "Class"]
-ANALYZE_TIME = 30
+ANALYZE_TIME = 60
 RETRIES = 5
 
 def process_address(_address: str):
@@ -25,13 +25,14 @@ def process_address(_address: str):
 
     # send file
     _vt.send_files([project_name])
-    time.sleep(ANALYZE_TIME)
     res_code = 0
     retry = 0
     while res_code != 200 and retry < RETRIES:
+        time.sleep(ANALYZE_TIME)
         resmap, res = _vt.retrieve_files_reports([project_name])
         res_code = res.status_code
-        time.sleep(ANALYZE_TIME)
+        if "scan_date" in resmap:
+            break
         retry += 1
 
     if len(resmap) > 0:
