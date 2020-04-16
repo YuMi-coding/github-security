@@ -4,7 +4,7 @@ import sys
 import argparse
 import logging
 
-from .virus_total import VirusTotal
+from virus_total import VirusTotal
 
 
 def list_all_files(path):
