@@ -36,7 +36,7 @@ def parse_json(_download_path):
     return list(_res_set)
 
 def _download_from_address(_address: str):
-    project_name = _address.split("/")[-1][:-1] + ".zip"
+    project_name = _address.split("/")[-1] + ".zip"
     command = "wget -q -O "+project_name+ " "+_address + "/zipball/master"
     os.system(command)
     print("Download ", project_name, " complete!")
