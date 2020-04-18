@@ -16,18 +16,18 @@ def _check_if_contains(filename: str):
     try:
         lines = in_fd.readlines()
     except:
-        return False
+        return 0
 
     for line in lines:
         splitted = line.split(" ")
         for item in splitted:
             if item.lower() in KEYWORDS:
-                return True
+                return KEYWORDS.index(item.lower()) + 1
 
-    return False
+    return 0
 
 def check_repos_for_keywords(_address: str):
-    _repo_path = "./repo"
+    _repo_path = "./temp"
     if not os.path.isdir(_repo_path):
         os.mkdir(_repo_path, 0o777)
     os.chdir(_repo_path)# enter the working directory here
@@ -37,27 +37,21 @@ def check_repos_for_keywords(_address: str):
 
     command = "unzip -qq -o " + project_name
     os.system(command)
-    # print(command)
 
     files = []
     for root, _, filename in os.walk("./"):
         for filenames in filename:
-            # print(filenames)
             splitted = filenames.split(".")
             if len(splitted) < 1 or splitted[-1].lower() in EXTENSION:
                 files.append(os.path.join(root, filenames))
-                # print(os.path.join(root, filenames))
 
-    # input()
     _res = False
     for f in files:
-        # print("checking file", f)
         if _check_if_contains(f):
             _res = True
             break
 
     os.chdir("..")# exit the working directory here
-    input("end of analyzing")
     shutil.rmtree(_repo_path)
 
     return _res
