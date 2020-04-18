@@ -132,6 +132,7 @@ dmypy.json
 *json.gz
 *json
 
+/.vscode
 # Untrack all files that downloaded from network
 *zip
 *key
