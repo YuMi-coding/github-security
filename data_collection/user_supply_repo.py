@@ -21,7 +21,7 @@ def get_repo_from_user(_address: str):
     if user_name.endswith("\n"):
         user_name.replace("\n", "")
 
-    print(user_name)
+    # print(user_name)
 
     html_name = _address.split("/")[-1] + "_user.html"
     command = "wget -q -O " + html_name + " " + _address
@@ -36,7 +36,7 @@ def get_repo_from_user(_address: str):
             comment_split = href_split.split("\"")[1]
             splash_split = comment_split.split("/")
             if len(splash_split) == 3 and splash_split[1] == user_name: # only length of 3 means a repo address
-                print(comment_split)
+                # print(comment_split)
                 res.add(GITHUB_HEADER + comment_split)
 
     command = "rm " + html_name
@@ -65,4 +65,4 @@ if __name__ == "__main__":
 
     for address in TEST_USER:
         print(get_repo_from_user(address))
-    input("repo from user")
+    input("repo from user complete")
