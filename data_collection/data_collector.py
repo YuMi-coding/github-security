@@ -12,6 +12,8 @@ from code_contain_keyword import check_repo_for_keywords
 EDGE_HEADER = "#source_node\tsource_class\tdest_node\tdest_class\tedge_class\n"
 REPO_CLASS = "R"
 USER_CLASS = "U"
+REPO_HEADER = "Repo address, Repo id"
+USER_HEADER = "User address, User id"
 
 def search_dict(_dict, item):
     if item in _dict:
@@ -33,7 +35,15 @@ def save_edge(edge_fd, from_id, from_class, to_id, to_class, edge_class):
                   _to_class + "\t" + \
                   _edge_class + "\n"
     edge_fd.write(line)
-    print(line)
+    # print(line)
+
+def save_dict(_filename: str, _dict: dict, header: str):
+    fd = open(_filename, "a")
+    fd.write(header)
+    writer = csv.writer(fd)
+    for item in _dict:
+        writer.writerow([str(item), str(_dict[item])])
+    fd.close()
 
 def process_single_address(_address: list, edge_fd, repo_dict, user_dict):
     repo_owner = get_user_from_repo(_address)
@@ -81,8 +91,8 @@ def process_single_address(_address: list, edge_fd, repo_dict, user_dict):
 
 
 def main_iteration(_filename: str, _address_list: list):
-
-    fd = open(_filename, "a")
+    edge_filename = _filename + "_edge.txt"
+    fd = open(edge_filename, "a")
     repo_dict = {}
     user_dict = {}
 
@@ -92,8 +102,11 @@ def main_iteration(_filename: str, _address_list: list):
 
     fd.close()
 
+    save_dict(output_filename + "_user.csv", user_dict, USER_HEADER)
+    save_dict(output_filename + "_repo.csv", repo_dict, REPO_HEADER)
+
 def get_address_list(_filename: str):
-    input_fd = open(_filename)
+    input_fd = open(_filename, "r")
     reader = csv.reader(input_fd)
     _address_list = []
     for lines in reader:
@@ -118,5 +131,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     address_list = get_address_list(input_filename)
-    edge_filename = output_filename + "_edge.txt"
-    main_iteration(edge_filename, address_list)
+    main_iteration(output_filename, address_list)
