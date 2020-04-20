@@ -26,7 +26,7 @@ def _check_if_contains(filename: str):
 
     return 0
 
-def check_repos_for_keywords(_address: str):
+def check_repo_for_keywords(_address: str):
     _repo_path = "./temp"
     if not os.path.isdir(_repo_path):
         os.mkdir(_repo_path, 0o777)
@@ -64,6 +64,6 @@ if __name__ == "__main__":
                     "https://github.com/secure-software-engineering/FlowDroid"]
     for address in TEST_ADDRESS:
         print("Checking", address)
-        res = check_repos_for_keywords(address)
+        res = check_repo_for_keywords(address)
         print("Result", res)
         input()
