@@ -12,8 +12,8 @@ from code_contain_keyword import check_repo_for_keywords
 EDGE_HEADER = "#source_node\tsource_class\tdest_node\tdest_class\tedge_class\n"
 REPO_CLASS = "R"
 USER_CLASS = "U"
-REPO_HEADER = "Repo address, Repo id"
-USER_HEADER = "User address, User id"
+REPO_HEADER = "Repo address, Repo id\n"
+USER_HEADER = "User address, User id\n"
 
 def search_dict(_dict, item):
     if item in _dict:
