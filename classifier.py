@@ -3,17 +3,20 @@ import csv
 import warnings
 
 # from sklearn.metrics import cross_validation
+
 from sklearn.svm import SVC, OneClassSVM
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import IsolationForest
+from sklearn.ensemble import IsolationForest, BaggingClassifier
 from sklearn.covariance import EllipticEnvelope
 from sklearn.neighbors import LocalOutlierFactor
+from imblearn.ensemble import BalancedBaggingClassifier
 
 warnings.simplefilter("ignore")
 DEFAULT_REPO_CSV = "./data/data_repo.csv"
 DEFAULT_USER_CSV = "./data/data_user.csv"
-DEFAULT_VECTOR_TXT = "./data/data_node_vectors.txt"
+DEFAULT_VECTOR_TXT = "./data/data2_node_vectors.txt"
 DEFAULT_LIST_CSV = "./data/list.csv"
 
 def read_repo_data(_path: str):
@@ -103,6 +106,20 @@ def classifier_SVM_training(_X, _Y, _weight):
     y_pred = clf.predict(X_test)
     # print(sum(y_pred))
     print("Result from labeled SVM:")
+    print("tn, fp, fn, tp =", confusion_matrix(Y_test, y_pred).ravel())
+
+def classifier_imblearn_SVM_training(_X, _Y, _weight):
+    X_train, X_test, Y_train, Y_test, w_train, w_test = train_test_split(_X, _Y, _weight, test_size=0.2, random_state=0xdeadbeef)
+    bbc = BalancedBaggingClassifier(base_estimator=SVC(kernel="rbf",
+                                                       gamma="auto"),
+                                    n_estimators=10,
+                                    sampling_strategy="auto",
+                                    max_samples=80,
+                                    replacement=False,
+                                    random_state=0xdeadbeef)
+    bbc.fit(X_train, Y_train)
+    y_pred = bbc.predict(X_test)
+    print("Result from bagging labeled SVM:")
     print("tn, fp, fn, tp =", confusion_matrix(Y_test, y_pred).ravel())
 
 def classifier_oneSVM_training(_X, _Y, _weight):
@@ -223,3 +240,4 @@ if __name__ == "__main__":
     classifier_isoforest_training(X, Y, weight)
     classifier_elliptic_training(X, Y, weight)
     classifier_outliner_training(X, Y, weight)
+    classifier_imblearn_SVM_training(X, Y, weight)
